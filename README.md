@@ -1,0 +1,2 @@
+# Discordle
+Wordle for discord
