@@ -1,10 +1,7 @@
 import axios from "axios"
+import { words } from "./words"
 
 export default class WordFetcher {
-    
-    public getRandomSolution() {
-        return "PIZZA"
-    }
 
     public async validateGuess(word: string) {
         if (word.length != 5) {
