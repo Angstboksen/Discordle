@@ -39,5 +39,3 @@ client.on("messageCreate", (message) => {
 importx(path.join(__dirname, "./Discordle.ts")).then(() => {
   client.login(process.env.BOT_TOKEN ?? "");
 });
-
-export default client;

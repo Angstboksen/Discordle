@@ -1,3 +1,4 @@
+import { User } from "discord.js";
 import { WordleDifficulty } from "./types";
 import Wordle from "./Wordle";
 
@@ -9,22 +10,22 @@ export default class WordleManager {
   }
 
   public startNewGame(
-    playerID: string,
+    player: User,
     difficulty = WordleDifficulty.MEDIUM
   ): void {
-    if (!this.games.has(playerID)) {
-      this.games.set(playerID, new Wordle(playerID, difficulty));
+    if (!this.games.has(player.id)) {
+      this.games.set(player.id, new Wordle(player, difficulty));
     }
   }
 
-  public getGame(playerID: string): Wordle {
-    if(!this.games.has(playerID)) {
-        this.startNewGame(playerID)
+  public getGame(player: User): Wordle {
+    if(!this.games.has(player.id)) {
+        this.startNewGame(player)
     }
-    return this.games.get(playerID)!
+    return this.games.get(player.id)!
   }
 
-  public endGame(playerID: string) {
-    this.games.delete(playerID);
+  public endGame(player: User) {
+    this.games.delete(player.id);
   }
 }

@@ -1,5 +1,5 @@
-import { Channel, Client, CommandInteraction, MessageEmbed } from "discord.js";
-import { Discord, SimpleCommand, SimpleCommandMessage, SimpleCommandOption, Slash } from "discordx";
+import { MessageEmbed } from "discord.js";
+import { Discord, SimpleCommand, SimpleCommandMessage, SimpleCommandOption} from "discordx";
 import WordFetcher from "./WordFetcher";
 import WordleManager from "./WordleManager";
 
@@ -13,8 +13,7 @@ class Discordle {
     @SimpleCommand("wordle")
     async wordle(command: SimpleCommandMessage) {
         let {author, channel} = command.message
-        let playerID = author.id;
-        let currentGame = this.manager.getGame(playerID)
+        let currentGame = this.manager.getGame(author)
         let embed = await channel.send({embeds: [currentGame.visualize()]})
         currentGame.setEmbedId(embed.id)
     }
@@ -24,18 +23,18 @@ class Discordle {
         @SimpleCommandOption("word", { type: "STRING" }) word: string,
         command: SimpleCommandMessage) {
         let message = command.message
-        if (!this.manager.getGame(message.author.id)){
+        if (!this.manager.getGame(message.author)){
             return message.reply({embeds: [new MessageEmbed().setDescription(":x: You need to start a game first. `!wordle`")]})
         }
         let validated = await this.fetcher.validateGuess(word)
         if (!validated) {
             return message.reply({embeds: [new MessageEmbed().setDescription(`:x: \`${word}\` is an illegal word`)]})
         }
-        let currentGame = this.manager.getGame(message.author.id)
-        console.log(currentGame)
+        let currentGame = this.manager.getGame(message.author)
+
         currentGame.updateBoard(word.toUpperCase())
         if(currentGame.isWon) {
-            this.manager.endGame(message.author.id)
+            this.manager.endGame(message.author)
         }
 
         if(currentGame.previousMessageId != null) {

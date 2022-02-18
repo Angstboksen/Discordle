@@ -1,10 +1,9 @@
-import { Message, MessageEmbed, User } from "discord.js";
+import { MessageEmbed, User} from "discord.js";
 import { WordleDifficulty } from "./types";
 import { words } from "./words";
-import client from "./index"
 
 export default class Wordle {
-  private playerID: string;
+  private player: User
   private board: string[][];
   private difficulty: WordleDifficulty;
   private solution: string;
@@ -12,14 +11,14 @@ export default class Wordle {
   round: number = 0;
   previousMessageId: string = "";
 
-  constructor(playerID: string, difficulty: WordleDifficulty) {
-    this.playerID = playerID;
+  constructor(player: User, difficulty: WordleDifficulty) {
+    this.player = player;
     this.difficulty = difficulty;
     this.board = this.generateBoard();
     this.solution = this.fetchSolution();
     this.round = 0;
 
-    console.log("Generated new wordle for player " + this.playerID + " with difficulty " + this.difficulty + " and solution " + this.solution);
+    console.log("Generated new wordle for player " + this.player.username + " with difficulty " + this.difficulty + " and solution " + this.solution);
   }
 
   private fetchSolution() {
@@ -81,7 +80,7 @@ export default class Wordle {
 
     let roundAndDifficulty = this.isWon == false ? `\n Round: ${this.round}/${this.difficulty}` : "You won in only " + this.round + " rounds!";
 
-    embed.setDescription(`**${this.playerID}**\n ${boardState} ${roundAndDifficulty}`);
+    embed.setDescription(`**${this.player.username}**\n ${boardState} ${roundAndDifficulty}`);
     
     return embed
   }
