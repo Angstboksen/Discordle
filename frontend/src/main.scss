@@ -4,6 +4,7 @@
     }
     
     h1,
+    h3,
     h5 {
         margin: 0;
         padding: 0;
@@ -80,4 +81,21 @@
             display: flex;
             justify-content: center;
         }
+    }
+    
+    .victory {
+        margin-bottom: 2rem;
+    }
+    
+    .flex {
+        display: flex;
+    }
+    
+    .column {
+        flex-direction: column;
+    }
+    
+    .center {
+        align-items: center;
+        justify-content: center;
     }

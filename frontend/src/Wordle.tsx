@@ -1,13 +1,5 @@
-import React, {
-  ChangeEvent,
-  ChangeEventHandler,
-  createRef,
-  RefObject,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useState } from "react";
+import Confetti from "react-confetti";
 import Keyboard from "./Keyboard";
 import LetterRow from "./LetterRow";
 import {
@@ -22,6 +14,7 @@ import {
   createDefaultBoard,
   useEventListener,
 } from "./utils";
+import VictoryScreen from "./VictoryScreen";
 
 interface WordleProps {
   player: Player;
@@ -159,6 +152,7 @@ const Wordle: React.FC<WordleProps> = ({
 
   return (
     <div className="wordle">
+      {isWon && <VictoryScreen />}
       <div className="wordle-grid">
         {board.map((letters: LetterObject[], key: number) => (
           <LetterRow key={key} letters={letters} />
