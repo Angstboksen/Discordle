@@ -11,12 +11,14 @@ import {
 import {
   calculateLetterObjectColor,
   createDefaultBoard,
+  randomSolution,
   useEventListener,
   words,
 } from "../utils";
 import VictoryScreen from "../conditionals/VictoryScreen";
 import IllegalWord from "../conditionals/IllegalWord";
 import LossScreen from "../conditionals/LossScreen";
+import ResetButton from "../conditionals/ResetButton";
 
 interface WordleProps {
   player: Player;
@@ -41,7 +43,7 @@ const Wordle: React.FC<WordleProps> = ({
   const [isWon, setIsWon] = useState<boolean>(false);
   const [isLoss, setIsLoss] = useState<boolean>(false);
   const [isIllegalWord, setIsIllegalWord] = useState<boolean>(false);
-  const [solution, setSolution] = useState<string>("GREAT");
+  const [solution] = useState<string>(randomSolution());
 
   const reset = () => {
     setBoard(initialBoard);
@@ -167,6 +169,7 @@ const Wordle: React.FC<WordleProps> = ({
       {isWon && <VictoryScreen />}
       {isLoss && <LossScreen word={solution} />}
       {isIllegalWord && <IllegalWord word={input} />}
+      <ResetButton onClick={reset}/>
       <div className="wordle-grid">
         {board.map((letters: LetterObject[], key: number) => (
           <LetterRow key={key} letters={letters} />

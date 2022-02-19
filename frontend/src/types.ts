@@ -25,7 +25,7 @@ export enum GameType {
 export type Player = {
   username: string;
   id: string;
-  rank?: DiscordleRank;
+  rank: DiscordleRank;
 };
 
 export type LetterObject = {

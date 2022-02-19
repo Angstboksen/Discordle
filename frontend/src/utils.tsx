@@ -51,6 +51,10 @@ export const calculateLetterObjectColor = (
   return { body: letter, color, priority };
 };
 
+export const randomSolution = () => {
+  return words[Math.floor(Math.random() * words.length)].toUpperCase()
+}
+
 export const KEYWORDLAYOUT = "QWERTYUIOP|ASDFGHJKL|ZXCVBNM";
 
 export const words = [

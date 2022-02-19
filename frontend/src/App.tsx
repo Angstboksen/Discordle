@@ -6,7 +6,12 @@ import "./main.scss";
 
 let player = {
   username: "Campaign",
-  id: "test"
+  id: "test",
+  rank: {
+    name: "Legend",
+    level: 20,
+    color: "#DAA520"
+  }
 }
 
 let guild = {

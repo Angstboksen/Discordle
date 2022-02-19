@@ -15,11 +15,12 @@
     }
     
     .header {
+        cursor: default;
         display: flex;
         flex-direction: column;
         align-items: center;
         font-size: 2rem;
-        margin: 1.5rem 0 2rem;
+        margin: 1.5rem 0 0rem;
         color: #322;
         &-title {
             display: flex;
@@ -98,4 +99,18 @@
     .center {
         align-items: center;
         justify-content: center;
+    }
+    
+    .button {
+        position: relative;
+        left: 9rem;
+        cursor: pointer;
+    }
+    
+    .button:hover {
+        color: #1E90FF;
+    }
+    
+    .button:active {
+        color: #20B2AA;
     }
