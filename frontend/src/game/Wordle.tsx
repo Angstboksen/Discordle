@@ -12,6 +12,7 @@ import {
   calculateLetterObjectColor,
   createDefaultBoard,
   useEventListener,
+  words,
 } from "../utils";
 import VictoryScreen from "../conditionals/VictoryScreen";
 import IllegalWord from "../conditionals/IllegalWord";
@@ -39,7 +40,7 @@ const Wordle: React.FC<WordleProps> = ({
   >(new Map());
   const [isWon, setIsWon] = useState<boolean>(false);
   const [isLoss, setIsLoss] = useState<boolean>(false);
-  const [isIllegalWord, setIsIllegalWord] = useState<boolean>(false)
+  const [isIllegalWord, setIsIllegalWord] = useState<boolean>(false);
   const [solution, setSolution] = useState<string>("GREAT");
 
   const reset = () => {
@@ -78,8 +79,12 @@ const Wordle: React.FC<WordleProps> = ({
     setBoard(newBoard);
   };
 
-  const validateWord = () => {
-    return input.length === 5;
+  const validateWord = (word: string) => {
+    if (input.length === 5) {
+      console.log(word)
+      return words.includes(word.toLowerCase());
+    }
+    return false;
   };
 
   const storeLetters = (word: string) => {
@@ -116,8 +121,8 @@ const Wordle: React.FC<WordleProps> = ({
     updateUsedLetterObjects(letters);
     if (corrects === 5) {
       setIsWon(true);
-    } else if (round === difficulty - 1){
-      setIsLoss(true)
+    } else if (round === difficulty - 1) {
+      setIsLoss(true);
     }
     storeLetters(input);
     return letters;
@@ -125,16 +130,21 @@ const Wordle: React.FC<WordleProps> = ({
 
   const keyHandler = (event: Event) => {
     const { key } = event as KeyboardEvent;
-    if (!isWon) {
+    if (!isWon && !isIllegalWord) {
       if (key === "Enter") {
-        const validWord = validateWord();
+        const validWord = validateWord(input);
         if (validWord) {
           const letterObjects = compareWithSolution();
           overrideBoard(letterObjects, round);
           setRound(round + 1);
           setInput("");
         } else {
-          // Display error, as word is not allowed
+          setIsIllegalWord(true);
+          updateBoard("")
+          setTimeout(() => {
+            setIsIllegalWord(false);
+            setInput("")
+          }, 2000);
         }
       } else if (key === "Backspace") {
         const sliced = input.slice(0, -1);
@@ -155,7 +165,8 @@ const Wordle: React.FC<WordleProps> = ({
   return (
     <div className="wordle">
       {isWon && <VictoryScreen />}
-      {isLoss && <LossScreen word={solution}/>}
+      {isLoss && <LossScreen word={solution} />}
+      {isIllegalWord && <IllegalWord word={input} />}
       <div className="wordle-grid">
         {board.map((letters: LetterObject[], key: number) => (
           <LetterRow key={key} letters={letters} />
