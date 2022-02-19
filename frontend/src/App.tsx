@@ -1,11 +1,11 @@
 import React from "react";
-import { WordleDifficulty } from "./types";
+import { GameType, WordleDifficulty } from "./types";
 import Wordle from "./Wordle";
 import "./main.scss";
 import Header from "./Header";
 
 let player = {
-  username: "Hauk",
+  username: "Campaign",
   id: "test"
 }
 
@@ -17,7 +17,7 @@ let guild = {
 function App() {
   return (
     <div className="app">
-      <Header player={player} discordGuild={guild}/>
+      <Header player={player} gameType={GameType.INDIVIDUAL}/>
       <Wordle player={player} discordGuild={guild} difficulty={WordleDifficulty.MEDIUM}/>
     </div>
   );

@@ -8,6 +8,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import Keyboard from "./Keyboard";
 import LetterRow from "./LetterRow";
 import {
   Guild,
@@ -16,7 +17,11 @@ import {
   Player,
   WordleDifficulty,
 } from "./types";
-import { createDefaultBoard, useEventListener } from "./utils";
+import {
+  calculateLetterObjectColor,
+  createDefaultBoard,
+  useEventListener,
+} from "./utils";
 
 interface WordleProps {
   player: Player;
@@ -34,6 +39,21 @@ const Wordle: React.FC<WordleProps> = ({
   const [board, setBoard] = useState<LetterObject[][]>(initialBoard);
   const [input, setInput] = useState<string>("");
   const [round, setRound] = useState<number>(0);
+  const [usedLetters, setUsedLetters] = useState<string[]>([]);
+  const [usedLetterObjects, setUsedLetterObjects] = useState<
+    Map<string, LetterObject>
+  >(new Map());
+  const [isWon, setIsWon] = useState<boolean>(false);
+  const [solution, setSolution] = useState<string>("GREAT");
+
+  const reset = () => {
+    setBoard(initialBoard);
+    setInput("");
+    setRound(0);
+    setUsedLetters([]);
+    setUsedLetterObjects(new Map());
+    setIsWon(false);
+  };
 
   const validateKey = (key: string) => {
     return key.length === 1 && key.match(/[a-z]/i);
@@ -45,6 +65,7 @@ const Wordle: React.FC<WordleProps> = ({
       letters.push({
         body: newInput[i] !== undefined ? newInput[i] : "",
         color: LetterBoxColor.DEFAULT,
+        priority: 0,
       });
     }
     return letters;
@@ -61,45 +82,75 @@ const Wordle: React.FC<WordleProps> = ({
   };
 
   const validateWord = () => {
-    return true;
+    return input.length === 5;
+  };
+
+  const storeLetters = (word: string) => {
+    const temp = [...usedLetters];
+    for (let letter of word) {
+      if (!temp.includes(letter)) {
+        temp.push(letter);
+      }
+    }
+    setUsedLetters(temp);
+  };
+
+  const updateUsedLetterObjects = (letterObjects: LetterObject[]) => {
+    const temp = new Map(usedLetterObjects);
+    for (let letterObject of letterObjects) {
+      const used = temp.get(letterObject.body);
+      if (used === undefined || letterObject.priority > used.priority) {
+        temp.set(letterObject.body, letterObject);
+      }
+    }
+
+    setUsedLetterObjects(temp);
   };
 
   const compareWithSolution = () => {
-    const solution = "great";
     const letters = [];
+    let corrects = 0;
     for (let i = 0; i < solution.length; i++) {
-      let color = LetterBoxColor.WRONG;
-      if (input[i] === solution[i]) {
-        color = LetterBoxColor.CORRECT;
-      } else if (solution.includes(input[i])) {
-        color = LetterBoxColor.INCORRECT_POSITION;
-      }
-      letters.push({ body: input[i], color });
+      const letterObject = calculateLetterObjectColor(
+        input[i],
+        solution,
+        input
+      );
+      if (letterObject.color === LetterBoxColor.CORRECT) corrects++;
+
+      letters.push(letterObject);
     }
+    updateUsedLetterObjects(letters);
+    if (corrects === 5) {
+      setIsWon(true);
+    }
+    storeLetters(input);
     return letters;
   };
 
   const keyHandler = (event: Event) => {
     const { key } = event as KeyboardEvent;
-    if (key === "Enter") {
-      const validWord = validateWord();
-      if (validWord) {
-        const letterObjects = compareWithSolution();
-        overrideBoard(letterObjects, round)
-        setRound(round + 1)
-        setInput("")
-      } else {
-        // Display error, as word is not allowed
-      }
-    } else if (key === "Backspace") {
-      const sliced = input.slice(0, -1);
-      setInput(sliced);
-      updateBoard(sliced);
-    } else if (validateKey(key.toLowerCase())) {
-      if (input.length < 5) {
-        const letter = key.toLowerCase();
-        setInput(input + letter);
-        updateBoard(input + letter);
+    if (!isWon) {
+      if (key === "Enter") {
+        const validWord = validateWord();
+        if (validWord) {
+          const letterObjects = compareWithSolution();
+          overrideBoard(letterObjects, round);
+          setRound(round + 1);
+          setInput("");
+        } else {
+          // Display error, as word is not allowed
+        }
+      } else if (key === "Backspace") {
+        const sliced = input.slice(0, -1);
+        setInput(sliced);
+        updateBoard(sliced);
+      } else if (validateKey(key.toUpperCase())) {
+        if (input.length < 5) {
+          const letter = key.toUpperCase();
+          setInput(input + letter);
+          updateBoard(input + letter);
+        }
       }
     }
   };
@@ -108,9 +159,12 @@ const Wordle: React.FC<WordleProps> = ({
 
   return (
     <div className="wordle">
-      {board.map((letters: LetterObject[], key: number) => (
-        <LetterRow key={key} letters={letters} />
-      ))}
+      <div className="wordle-grid">
+        {board.map((letters: LetterObject[], key: number) => (
+          <LetterRow key={key} letters={letters} />
+        ))}
+      </div>
+      <Keyboard usedLetterObjects={usedLetterObjects} />
     </div>
   );
 };
