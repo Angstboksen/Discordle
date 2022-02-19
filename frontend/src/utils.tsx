@@ -34,14 +34,16 @@ export const useEventListener = (
 };
 
 export const calculateLetterObjectColor = (
-  letter: string,
+  index: number,
   solution: string,
   input: string
 ) => {
   let color = LetterBoxColor.WRONG;
   let priority = 2;
-  if (letter === solution[input.indexOf(letter)]) {
+  const letter = input[index]
+  if (letter === solution[index]) {
     color = LetterBoxColor.CORRECT;
+    priority = 3
   } else if (solution.includes(letter)) {
     color = LetterBoxColor.INCORRECT_POSITION;
     priority = 1;

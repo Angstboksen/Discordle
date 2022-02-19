@@ -105,7 +105,7 @@ const Wordle: React.FC<WordleProps> = ({
     let corrects = 0;
     for (let i = 0; i < solution.length; i++) {
       const letterObject = calculateLetterObjectColor(
-        input[i],
+        i,
         solution,
         input
       );
