@@ -1,5 +1,5 @@
 import React from "react";
-import { GameType, Guild, Player } from "./types";
+import { GameType, Player } from "../types";
 
 interface HeaderProps {
   player: Player;

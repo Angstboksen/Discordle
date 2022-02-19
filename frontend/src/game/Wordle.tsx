@@ -1,20 +1,21 @@
 import React, { useState } from "react";
-import Confetti from "react-confetti";
-import Keyboard from "./Keyboard";
-import LetterRow from "./LetterRow";
+import Keyboard from "../game/Keyboard";
+import LetterRow from "../game/LetterRow";
 import {
   Guild,
   LetterBoxColor,
   LetterObject,
   Player,
   WordleDifficulty,
-} from "./types";
+} from "../types";
 import {
   calculateLetterObjectColor,
   createDefaultBoard,
   useEventListener,
-} from "./utils";
-import VictoryScreen from "./VictoryScreen";
+} from "../utils";
+import VictoryScreen from "../conditionals/VictoryScreen";
+import IllegalWord from "../conditionals/IllegalWord";
+import LossScreen from "../conditionals/LossScreen";
 
 interface WordleProps {
   player: Player;
@@ -37,6 +38,8 @@ const Wordle: React.FC<WordleProps> = ({
     Map<string, LetterObject>
   >(new Map());
   const [isWon, setIsWon] = useState<boolean>(false);
+  const [isLoss, setIsLoss] = useState<boolean>(false);
+  const [isIllegalWord, setIsIllegalWord] = useState<boolean>(false)
   const [solution, setSolution] = useState<string>("GREAT");
 
   const reset = () => {
@@ -46,6 +49,7 @@ const Wordle: React.FC<WordleProps> = ({
     setUsedLetters([]);
     setUsedLetterObjects(new Map());
     setIsWon(false);
+    setIsLoss(false);
   };
 
   const validateKey = (key: string) => {
@@ -104,11 +108,7 @@ const Wordle: React.FC<WordleProps> = ({
     const letters = [];
     let corrects = 0;
     for (let i = 0; i < solution.length; i++) {
-      const letterObject = calculateLetterObjectColor(
-        i,
-        solution,
-        input
-      );
+      const letterObject = calculateLetterObjectColor(i, solution, input);
       if (letterObject.color === LetterBoxColor.CORRECT) corrects++;
 
       letters.push(letterObject);
@@ -116,6 +116,8 @@ const Wordle: React.FC<WordleProps> = ({
     updateUsedLetterObjects(letters);
     if (corrects === 5) {
       setIsWon(true);
+    } else if (round === difficulty - 1){
+      setIsLoss(true)
     }
     storeLetters(input);
     return letters;
@@ -153,6 +155,7 @@ const Wordle: React.FC<WordleProps> = ({
   return (
     <div className="wordle">
       {isWon && <VictoryScreen />}
+      {isLoss && <LossScreen word={solution}/>}
       <div className="wordle-grid">
         {board.map((letters: LetterObject[], key: number) => (
           <LetterRow key={key} letters={letters} />

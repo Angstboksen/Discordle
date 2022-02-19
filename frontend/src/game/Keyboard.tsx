@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import LetterBox from "./LetterBox";
-import { LetterBoxColor, LetterBoxSize, LetterObject } from "./types";
-import { calculateLetterObjectColor, KEYWORDLAYOUT } from "./utils";
+import { LetterBoxColor, LetterBoxSize, LetterObject } from "../types";
+import { KEYWORDLAYOUT } from "../utils";
 
 interface KeyBoardProps {
   usedLetterObjects: Map<string, LetterObject>;

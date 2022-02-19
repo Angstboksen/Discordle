@@ -1,5 +1,5 @@
 import React from "react";
-import { LetterBoxSize, LetterObject } from "./types";
+import { LetterBoxSize, LetterObject } from "../types";
 
 interface LetterBoxProps {
   letter: LetterObject;

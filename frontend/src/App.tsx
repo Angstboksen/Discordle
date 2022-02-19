@@ -1,8 +1,8 @@
 import React from "react";
 import { GameType, WordleDifficulty } from "./types";
-import Wordle from "./Wordle";
+import Header from "./header/Header";
+import Wordle from "./game/Wordle";
 import "./main.scss";
-import Header from "./Header";
 
 let player = {
   username: "Campaign",
