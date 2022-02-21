@@ -43,7 +43,7 @@ const Wordle: React.FC<WordleProps> = ({
   const [isWon, setIsWon] = useState<boolean>(false);
   const [isLoss, setIsLoss] = useState<boolean>(false);
   const [isIllegalWord, setIsIllegalWord] = useState<boolean>(false);
-  const [solution] = useState<string>(randomSolution());
+  const [solution, setSolution] = useState<string>(randomSolution());
 
   const reset = () => {
     setBoard(initialBoard);
@@ -53,6 +53,7 @@ const Wordle: React.FC<WordleProps> = ({
     setUsedLetterObjects(new Map());
     setIsWon(false);
     setIsLoss(false);
+    setSolution(randomSolution());
   };
 
   const validateKey = (key: string) => {
@@ -82,11 +83,7 @@ const Wordle: React.FC<WordleProps> = ({
   };
 
   const validateWord = (word: string) => {
-    if (input.length === 5) {
-      console.log(word)
-      return words.includes(word.toLowerCase());
-    }
-    return false;
+    return words.includes(word.toLowerCase());
   };
 
   const storeLetters = (word: string) => {
@@ -135,6 +132,7 @@ const Wordle: React.FC<WordleProps> = ({
     if (!isWon && !isIllegalWord) {
       if (key === "Enter") {
         const validWord = validateWord(input);
+        if(input.length !== 5) return
         if (validWord) {
           const letterObjects = compareWithSolution();
           overrideBoard(letterObjects, round);
@@ -142,10 +140,10 @@ const Wordle: React.FC<WordleProps> = ({
           setInput("");
         } else {
           setIsIllegalWord(true);
-          updateBoard("")
+          updateBoard("");
           setTimeout(() => {
             setIsIllegalWord(false);
-            setInput("")
+            setInput("");
           }, 2000);
         }
       } else if (key === "Backspace") {
@@ -169,7 +167,7 @@ const Wordle: React.FC<WordleProps> = ({
       {isWon && <VictoryScreen />}
       {isLoss && <LossScreen word={solution} />}
       {isIllegalWord && <IllegalWord word={input} />}
-      <ResetButton onClick={reset}/>
+      <ResetButton onClick={reset} />
       <div className="wordle-grid">
         {board.map((letters: LetterObject[], key: number) => (
           <LetterRow key={key} letters={letters} />
