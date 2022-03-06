@@ -19,6 +19,7 @@ import VictoryScreen from "../conditionals/VictoryScreen";
 import IllegalWord from "../conditionals/IllegalWord";
 import LossScreen from "../conditionals/LossScreen";
 import ResetButton from "../conditionals/ResetButton";
+import { finishGame, startNewGame, updateGame } from "../api/api";
 
 interface WordleProps {
   player: Player;
@@ -45,7 +46,7 @@ const Wordle: React.FC<WordleProps> = ({
   const [isIllegalWord, setIsIllegalWord] = useState<boolean>(false);
   const [solution, setSolution] = useState<string>(randomSolution());
 
-  const reset = () => {
+  const reset = async () => {
     setBoard(initialBoard);
     setInput("");
     setRound(0);
@@ -54,6 +55,8 @@ const Wordle: React.FC<WordleProps> = ({
     setIsWon(false);
     setIsLoss(false);
     setSolution(randomSolution());
+    await finishGame(player.id)
+    await startNewGame(player.id)
   };
 
   const validateKey = (key: string) => {
@@ -82,10 +85,6 @@ const Wordle: React.FC<WordleProps> = ({
     setBoard(newBoard);
   };
 
-  const validateWord = (word: string) => {
-    return words.includes(word.toLowerCase());
-  };
-
   const storeLetters = (word: string) => {
     const temp = [...usedLetters];
     for (let letter of word) {
@@ -104,47 +103,31 @@ const Wordle: React.FC<WordleProps> = ({
         temp.set(letterObject.body, letterObject);
       }
     }
-
     setUsedLetterObjects(temp);
   };
 
-  const compareWithSolution = () => {
-    const letters = [];
-    let corrects = 0;
-    for (let i = 0; i < solution.length; i++) {
-      const letterObject = calculateLetterObjectColor(i, solution, input);
-      if (letterObject.color === LetterBoxColor.CORRECT) corrects++;
-
-      letters.push(letterObject);
-    }
-    updateUsedLetterObjects(letters);
-    if (corrects === 5) {
-      setIsWon(true);
-    } else if (round === difficulty - 1) {
-      setIsLoss(true);
-    }
-    storeLetters(input);
-    return letters;
-  };
-
-  const keyHandler = (event: Event) => {
+  const keyHandler = async (event: Event) => {
     const { key } = event as KeyboardEvent;
-    if (!isWon && !isIllegalWord) {
+    if (!isWon && !isLoss) {
       if (key === "Enter") {
-        const validWord = validateWord(input);
-        if(input.length !== 5) return
-        if (validWord) {
-          const letterObjects = compareWithSolution();
-          overrideBoard(letterObjects, round);
+        const validWord = await updateGame(player.id, input);
+        if (validWord !== undefined) { 
+          overrideBoard(validWord.board, round);
+          updateUsedLetterObjects(validWord.board)
+          storeLetters(input);
+          if(validWord.gameStatus !== "active") {
+            finishGame(player.id)
+            setIsWon(validWord.gameStatus === "won")
+            setIsLoss(validWord.gameStatus === "loss")
+          }
           setRound(round + 1);
           setInput("");
         } else {
           setIsIllegalWord(true);
-          updateBoard("");
           setTimeout(() => {
             setIsIllegalWord(false);
-            setInput("");
-          }, 2000);
+
+          }, 1000);
         }
       } else if (key === "Backspace") {
         const sliced = input.slice(0, -1);

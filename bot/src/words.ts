@@ -1265,7 +1265,7 @@ export const words = [
     'scrub',
     'crabs',
     'probe',
-    'logic',
+    'gamemanager',
     'adobe',
     'exile',
     'rebel',

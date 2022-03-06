@@ -13,7 +13,7 @@ import {
   updateGame,
   validateUser,
 } from "../database/database";
-import { checkVictory, validGuess } from "../logic";
+import { checkLoss, checkVictory, compareWithSolution, validGuess } from "../../logic/gamemanager";
 import log from "../utils/Logger";
 
 const router = Router();
@@ -26,7 +26,7 @@ router.route("/").get(async (request: Request, response: Response) => {
     desciption:
       "Handles every request about games being played now, or archived ones.",
   };
-  response.json(message(path, 200, obj));
+  response.status(200).json(message(path, 200, obj));
 });
 
 router
@@ -37,7 +37,7 @@ router
     const user = await validateUser(request.headers.authorization);
     if (user !== undefined) {
       if (user.hasUnfinishedGame) {
-        return response.json(
+        return response.status(400).json(
           message(path, 400, "User already has an active game")
         );
       }
@@ -47,10 +47,10 @@ router
         board: [],
         type: GameType.INDIVIDUAL,
       };
-      return response.json(message(path, 201, obj));
+      return response.status(201).json(message(path, 201, obj));
     }
 
-    return response.json(message(path, 403, "User not defined"));
+    return response.status(403).json(message(path, 403, "User not defined"));
   });
 
 router
@@ -63,26 +63,29 @@ router
     const guessOK = await validGuess(guess);
     if (user !== undefined) {
       if (!user.hasUnfinishedGame) {
-        return response.json(
+        return response.status(400).json(
           message(path, 400, "User already has an active game")
         );
       }
       if (!guessOK) {
-        return response.json(message(path, 400, "Invalid guess"));
+        return response.status(400).json(message(path, 400, "Invalid guess"));
       }
       const game = await getUserGame(user.discord);
       const success = await updateGame(game._id.toString(), guess);
+      const isWon = guess.toLowerCase() === game.solution
+      const isLoss = !isWon && game.board.length === 5
       if (success) {
         const obj = {
           gameID: game.insertedId,
-          board: game.board.concat(guess.split()),
+          board: compareWithSolution(game.solution, guess),
+          gameStatus: isWon ? "won" : isLoss ? "loss" : "active",
           type: GameType.INDIVIDUAL,
         };
-        return response.json(message(path, 200, obj));
+        return response.status(200).json(message(path, 200, obj));
       }
-      return response.json(message(path, 400, "Unsuccessful updating game"));
+      return response.status(400).json(message(path, 400, "Unsuccessful updating game"));
     }
-    return response.json(message(path, 403, "User not defined"));
+    return response.status(403).json(message(path, 403, "User not defined"));
   });
 
 router
@@ -94,12 +97,12 @@ router
     if (user !== undefined) {
       const game = (await getUserGame(user.discord)) as any;
       if (game !== undefined) {
-        const victory = checkVictory(game as Game);
+        const victory = checkVictory(game);
         await finishGame(user.discord, game._id.toString(), victory);
-        return response.json(message(path, 200, game._id));
+        return response.status(200).json(message(path, 200, game._id));
       }
     }
-    return response.json(message(path, 403, "User not defined"));
+    return response.status(403).json(message(path, 403, "User not defined"));
   });
 
 router
@@ -108,7 +111,8 @@ router
     const path = "/games/randomWord";
     log(path, request.ip);
     const obj = await fetchRandomMongo(MongoTables.WORDS);
-    response.json(message(path, 200, obj));
+    response.status(200).json(message(path, 200, obj));
   });
 
 export default router;
+

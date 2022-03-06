@@ -1,7 +1,7 @@
 import { MongoClient, ObjectID } from "mongodb";
 import { config } from "dotenv";
-import { Game, GameType, LetterObject, MongoTables } from "../../../types";
-import { createNewGame } from "../logic";
+import { GameType, MongoTables } from "../../../types";
+import { createNewGame } from "../../logic/gamemanager";
 config();
 
 const database = process.env.DATABASE;
@@ -35,17 +35,18 @@ export const insertNewGame = async (user: string, type: GameType) => {
     { discord: user },
     { $set: { hasUnfinishedGame: true } }
   );
+  console.log(`[Dicsordle]: Created new game for - ${user}`)
   return row;
 };
 
 export const updateGame = async (game: string, guess: string) => {
   try {
     const db = client.db(database);
-
     db.collection(MongoTables.GAMES).updateOne(
       { _id: new ObjectID(game) },
       { $push: { board: guess } }
     );
+    console.log(`[Dicsordle]: Updated game ${game} with guess: ${guess}}`)
     return true;
   } catch (error) {
     console.log(error)
@@ -68,6 +69,7 @@ export const finishGame = async (
       { discord: user },
       { $set: { hasUnfinishedGame: false } }
     );
+    console.log(`[Dicsordle]: Finished game for - ${user}`)
     return true;
   } catch (error) {
     return false;
@@ -82,6 +84,15 @@ export const fetchRandomMongo = async (collectionName: string) => {
     .toArray();
   return data[0];
 };
+
+export const fetchWord = async (guess: string) => {
+  const db = client.db(database);
+  const data = await db
+    .collection(MongoTables.WORDS)
+    .find({word: guess.toLowerCase()})
+    .toArray()
+  return data[0];
+}
 
 export const fetchCollection = async (collectionName: string) => {
   const db = client.db(database);

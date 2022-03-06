@@ -5,10 +5,9 @@ import routes from "./routes";
 import { message } from "./types";
 
 const app = express();
-
+app.use(cors());
 app.use(urlencoded({ extended: true }));
 app.use(json());
-app.use(cors());
 app.use((_: any, res: any, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
@@ -37,7 +36,7 @@ app.get("*", function (_: Request, res: Response) {
 });
 
 const port = 8000;
-const host = "0.0.0.0";
+const host = "localhost";
 app.listen(process.env.PORT ? +process.env.PORT : port, host, () => {
   console.log(`[Discordle]: Server is listening at http://${host}:${port}`);
 });

@@ -1,6 +1,5 @@
 import { Router, Request, Response } from "express";
-import { message, MongoTables } from "../../../types";
-import { fetchRandomMongo } from "../database/database";
+import { message } from "../../../types";
 import log from "../utils/Logger";
 
 const router = Router();
@@ -27,7 +26,7 @@ router.route("/").get(async (request: Request, response: Response) => {
         discord_bot: "https://github.com/Angstboksen/Discordle",
         description: "API used for authorization and managing the architecture of the Discord bot and it's companion website"
       }
-    response.json(message(path, 200, obj));
+    response.status(200).json(message(path, 200, obj));
  
 });
 

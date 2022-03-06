@@ -6,7 +6,7 @@ import "./main.scss";
 
 let player = {
   username: "Campaign",
-  id: "test",
+  id: "192586347972788224",
   rank: {
     name: "Legend",
     level: 20,
